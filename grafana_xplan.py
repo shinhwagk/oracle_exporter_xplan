@@ -58,7 +58,7 @@ def parse_args():
 
 
 def writePidFileIfNotExist(pid_path):
-    pid_file_path = os.path.join(pid_path, "grafana_query.pid")
+    pid_file_path = os.path.join(pid_path, "grafana_xplan.pid")
     if os.path.exists(pid_file_path):
         print("pid file: %s exist." % pid_file_path)
         sys.exit(1)
