@@ -1,5 +1,2 @@
-/test.sh
 __pycache__
-/xplans
-/logs
-/pids
+/grafana_xplan.pid

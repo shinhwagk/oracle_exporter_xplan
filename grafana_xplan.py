@@ -1,11 +1,8 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qsl
-import json
-import os
-import sys
-import argparse
+import argparse,json,os,sys
 
-store_path = ""
+from xplan import display_cursor
 
 
 class XPlanHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -40,25 +37,22 @@ def gen_xplan_response(path):
     child_number = url_args["child"]
     db_name = url_args["db_name"]
     inst = url_args["inst"]
-    xf = get_xplan_file_path(store_path, db_name, inst, sql_id, child_number)
-    xplan = get_xplan(xf)
+    name = "%s-%s" % (db_name, inst)
+    dsn = get_config()[name]
+    xplan = display_cursor(dsn, sql_id, child_number).to_str()
     return "callback(%s)" % json.dumps({"xplan": xplan})
 
 
-def get_xplan_file_path(store_plan, db_name, inst, sql_id, child_number):
-    return os.path.join(store_plan, db_name, inst, "%s_%s" % (sql_id, child_number))
-
-
-def get_xplan(xplan_file):
-    data = ""
-    with open(xplan_file) as f:
-        data = f.read()
-    return data
+def get_config():
+    dsns = {}
+    with open(config_file) as f:
+        dsns = json.loads(f.read())
+    return dsns
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-sp', '--store_path', help="store path", required=True)
+    parser.add_argument('-cf', '--config', help="data source file path", required=True)
     parser.add_argument('-pp', '--pid_path', help="pid path", required=True)
     return parser.parse_args()
 
@@ -77,8 +71,8 @@ def writePidFileIfNotExist(pid_path):
 
 def main(args):
     writePidFileIfNotExist(args.pid_path)
-    global store_path
-    store_path = args.store_path
+    global config_file
+    config_file = args.config
     run(server_host='0.0.0.0', handler_class=XPlanHTTPRequestHandler)
 
 
