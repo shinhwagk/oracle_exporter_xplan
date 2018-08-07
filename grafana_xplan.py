@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qsl
-import argparse,json,os,sys
+import argparse
+import json
 
 from xplan import display_cursor
 
@@ -52,27 +53,13 @@ def get_config():
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-cf', '--config', help="data source file path", required=True)
-    parser.add_argument('-pp', '--pid_path', help="pid path", required=True)
+    parser.add_argument('-cf', '--config_file', help="data source file path", required=True)
     return parser.parse_args()
 
 
-def writePidFileIfNotExist(pid_path):
-    pid_file_path = os.path.join(pid_path, "grafana_xplan.pid")
-    if os.path.exists(pid_file_path):
-        print("pid file: %s exist." % pid_file_path)
-        sys.exit(1)
-    else:
-        pid = str(os.getpid())
-        f = open(pid_file_path, 'w')
-        f.write(pid)
-        f.close()
-
-
 def main(args):
-    writePidFileIfNotExist(args.pid_path)
     global config_file
-    config_file = args.config
+    config_file = args.config_file
     run(server_host='0.0.0.0', handler_class=XPlanHTTPRequestHandler)
 
 
