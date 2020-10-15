@@ -1,5 +1,5 @@
-FROM python:3
-RUN pip install xplan
+FROM shinhwagk/oraclepython:latest
+RUN python3 -m pip install xplan
 WORKDIR /app
 ADD grafana_xplan.py .
-CMD python grafana_xplan.py -cf dsns.json
+ENTRYPOINT python3 grafana_xplan.py -cf dsns.json
